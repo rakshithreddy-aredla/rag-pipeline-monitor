@@ -1,0 +1,61 @@
+# CascadeGuard default configuration (README §9).
+# Every tunable knob lives here — never hardcode these values inline (AGENTS.md §2.6).
+# NOTE: `lambda` is a PLACEHOLDER until the cross-validation sweep in README §6 / TODO
+# Phase 14 has been run — see DECISIONS.md D-001.
+
+risk_combiner:
+  lambda: 0.6 # PLACEHOLDER — tune via grid/Bayesian search on held-out split, then log in DECISIONS.md
+
+cusum:
+  arl0_target: 500 # → <0.2% false-alarm rate per Eq. 12
+  delta: 0.1 # minimum detectable CHRS shift
+  # mu0 / sigma are NOT set here — they must come from calibrate() on labeled-clean traces.
+
+monitor_placement:
+  budget_B: 10.0 # compute-cost units per pipeline execution
+  refresh_schedule: nightly
+  # Per-step-kind monitoring costs, calibrated empirically from Phases 2-5 measurements.
+  # Units: one LLM call ~= 1.0; embedding call ~= 0.02 (placeholder ratios, recalibrate).
+  step_kind_costs:
+    plan: 0.05
+    retrieve: 0.05
+    reason: 0.05
+    tool_call: 1.1
+    synthesize: 1.1
+
+propagation_estimator:
+  track: "nli_proxy" # "attention" | "nli_proxy" | "counterfactual"
+  expensive_mode: false # gates counterfactual re-execution (extra LLM call per edge)
+  nli_model: "microsoft/deberta-large-mnli" # placeholder choice — flag before finalizing
+  clamp_max: 1.0 # alpha_ij is clamped to [0, clamp_max]; unclamped >1 values break Theorem 1
+
+semantic_entropy:
+  K: 10 # samples per monitored step — ONLY run on steps in S*, never unconditionally
+  cluster_threshold: 0.85 # bidirectional-entailment probability threshold
+  generation_temperature: 1.0
+
+embeddings:
+  # Deterministic dependency-free embedder for v1/tests; swap to sentence-transformers
+  # for real runs (DECISIONS.md D-003 still open — bge-base-en-v1.5 vs e5-base).
+  backend: "hashing" # "hashing" | "sentence-transformers"
+  model: "bge-base-en-v1.5" # used when backend == "sentence-transformers"
+  dim: 256 # hashing backend dimensionality (real models: 768)
+  max_concat_chars: 6000 # cap on R(s_i) concatenation; chunk-average beyond this
+  similarity_edge_threshold: 0.62 # dynamic edge-inference fallback cosine threshold
+
+edge_inference:
+  ngram_size: 3
+  ngram_overlap_threshold: 0.15
+
+graph:
+  allow_cycles: false # DAG violation is a loud error by design (TODO Phase 1)
+
+storage:
+  backend: "memory" # "memory" | "postgres"
+  dsn_env_var: "CASCADEGUARD_PG_DSN"
+
+alerts:
+  sinks: [] # e.g. [{type: webhook, url: ...}, {type: slack, url: ...}]
+
+latency_budget_ms:
+  cheap_check_per_step: 12 # the paper's headline overhead target

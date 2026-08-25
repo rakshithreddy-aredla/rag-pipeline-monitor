@@ -1,0 +1,25 @@
+# Local development stack (TODO Phase 0).
+# Postgres + pgvector for the trace store; Redis for streams/cache.
+# The self-hosted embedding server is intentionally NOT here yet — embedding backend
+# choice is still open (DECISIONS.md D-003); add it once benchmarked.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: cascadeguard
+      POSTGRES_PASSWORD: cascadeguard
+      POSTGRES_DB: cascadeguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./storage/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

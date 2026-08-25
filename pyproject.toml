@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cascadeguard"
+version = "0.1.0"
+description = "Real-time, pipeline-aware hallucination detection for multi-step agentic RAG systems"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+# Real embedding backend (production path); hashing embedder is the dependency-free default.
+embeddings = ["sentence-transformers>=2.7"]
+# Track B NLI surrogate + semantic-entropy clustering model.
+nli = ["transformers>=4.40", "torch>=2.2"]
+langchain = ["langchain-core>=0.2"]
+llamaindex = ["llama-index-core>=0.10"]
+postgres = ["psycopg[binary]>=3.1", "pgvector>=0.3"]
+redis = ["redis>=5.0"]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "black>=24.3",
+    "mypy>=1.10",
+    "types-PyYAML",
+]
+
+[tool.setuptools]
+packages = { find = { include = ["core*", "sdk*", "api*", "storage*", "eval*"] } }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py312"]
+
+[tool.mypy]
+# Pin removed: numpy stubs require >=3.12 parsing; source stays 3.10-compatible.
+disallow_untyped_defs = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+files = ["core", "storage", "api", "sdk"]
+
+[[tool.mypy.overrides]]
+module = ["sdk.integrations.*"]
+disallow_untyped_defs = false
