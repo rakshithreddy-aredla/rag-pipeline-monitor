@@ -2,6 +2,22 @@
 
 **A real-time, pipeline-aware hallucination detection framework for multi-step agentic RAG systems.**
 
+## Attribution
+
+This is **not original research**. It is a software implementation of a published paper:
+
+> *"CascadeGuard: A Real-Time Pipeline-Aware Hallucination Detection Framework for Multi-Step Agentic RAG Systems"*
+> **Arvapalli Venkata Sai Akhil**, CMR College of Engineering and Technology
+> Original implementation: [@akhil-arvapalli](https://github.com/akhil-arvapalli)
+
+The research, the theorems, and the original codebase are Akhil's work. This repository is hosted on my account as a mirror so the implementation is easy to find; the design document below is his, and I've left it as written rather than rewriting someone else's research in my own voice.
+
+See [`CascadeGuard_Research_Paper (1).pdf`](./CascadeGuard_Research_Paper%20(1).pdf) for the paper this implements.
+
+---
+
+## About this document
+
 CascadeGuard implements the framework from *"CascadeGuard: A Real-Time Pipeline-Aware Hallucination Detection Framework for Multi-Step Agentic RAG Systems"* (Arvapalli Venkata Sai Akhil, CMR College of Engineering and Technology). This document is the system design and build spec — it translates every formal contribution in the paper (Hcascade, CHAF, CHRS, CUSUM detection, budget-constrained monitor placement) into a concrete, buildable software architecture.
 
 ---
